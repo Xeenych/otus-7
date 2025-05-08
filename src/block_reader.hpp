@@ -11,35 +11,24 @@ class BlockReader {
     explicit BlockReader(size_t s, std::istream& is) : block_size_{s}, input_stream_{is} {}
 
     bool GetLine(std::string& line) {
-        outstring_.str("");
-        outstring_ << "bulk: ";
+        while (true) {
+            std::string command;
+            std::getline(input_stream_, command);
 
-        for (auto count = 0; count < block_size_; count++) {
-            std::string input_line;
-            std::getline(input_stream_, input_line);
-
-            if ("EOF" == input_line) {
-                line = serialize();
-                return false;
+            if ("EOF" == command) {
+                return on_eof();
             }
 
-            if ("{" == input_line) {
-                begin_block();
-                line = serialize();
-                return true;
+            if ("{" == command) {
+                return on_left_brace();
             }
 
-            if ("}" == input_line) {
-                end_block();
-                line = serialize();
-                return true;
+            if ("}" == command) {
+                return on_right_brace();
             }
 
-            add_line(input_line);
+            on_command(command);
         }
-
-        line = serialize();
-        return true;
     }
 
     void SetSize(size_t s) { block_size_ = s; }
@@ -48,7 +37,10 @@ class BlockReader {
     size_t block_size_;
     std::istream& input_stream_;
     std::ostringstream outstring_{};
-    bool dynamic_block_ = false;
+
+    size_t counter_;
+
+    size_t block_count_ = 0;
 
     std::vector<std::string> buffer_;
 
@@ -69,7 +61,17 @@ class BlockReader {
         return o.str();
     }
 
-    void begin_block() { dynamic_block_ = true; }
+    bool is_dynamic() { return (0 != block_count_); }
 
-    void end_block() { dynamic_block_ = false; }
+    void begin_block() {
+        block_count_++;
+        counter_ = block_size_;
+    }
+
+    void end_block() { block_count_--; }
+
+    bool on_eof() { return false; }
+    bool on_left_brace() { return true; }
+    bool on_right_brace() { return true; }
+    void on_command(std::string command) {}
 };
