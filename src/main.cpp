@@ -1,9 +1,11 @@
 #include "block_reader.hpp"
+#include "block_writer.hpp"
 
 #include <cassert>
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <vector>
 
 int main(int argc, char* argv[]) {
     std::istringstream s{argv[1]};
@@ -12,13 +14,12 @@ int main(int argc, char* argv[]) {
     std::cout << "Block size is: " << block_size << std::endl;
 
     BlockReader br{block_size, std::cin};
+    BlockWriter bw{std::cout};
 
-    std::string line;
-    while (br.GetLine(line)) {
-        std::cout << line << std::endl;
-    }
-    // вывод послденей строки перед EOF
-    std::cout << line << std::endl;
+    std::vector<std::string> commands;
+
+    br >> commands;
+    bw << commands;
 
     return 0;
 }
