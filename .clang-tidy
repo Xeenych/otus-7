@@ -171,7 +171,7 @@ WarningsAsErrors: >
   -modernize-deprecated-headers,
   -modernize-macro-to-enum,
   -modernize-use-using,
-  -readability-braces-around-statements,
+#  -readability-braces-around-statements,
   -readability-isolate-declaration,
   -readability-redundant-inline-specifier,
   -google-runtime-int,
