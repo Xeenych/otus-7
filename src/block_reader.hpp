@@ -1,9 +1,7 @@
 #pragma once
 
-#include <cstring>
-#include <iostream>
 #include <istream>
-#include <sstream>
+#include <string>
 #include <vector>
 
 class BlockReader {
@@ -13,7 +11,8 @@ class BlockReader {
     void operator>>(std::vector<std::string>& vec) {
         bool ret = false;
         counter_ = block_size_;
-        while (!ret) {
+
+        while (!ret || !vec.size()) {
             std::string command;
             std::getline(input_stream_, command);
 
@@ -29,39 +28,39 @@ class BlockReader {
         }
     }
 
-    void SetSize(size_t s) { block_size_ = s; }
     bool eof() const { return eof_; }
 
    private:
-    size_t block_size_;
+    const size_t block_size_;
     std::istream& input_stream_;
-    std::ostringstream outstring_{};
 
     bool eof_ = false;
     size_t counter_;
-
-    size_t block_count_ = 0;
-
-    bool is_dynamic() { return (0 != block_count_); }
-
-    void begin_block() {
-        block_count_++;
-        counter_ = block_size_;
-    }
-
-    void end_block() { block_count_--; }
+    int block_count_ = 0;
 
     bool on_eof() {
         eof_ = true;
         return true;
     }
 
-    bool on_left_brace() { return false; }
-    bool on_right_brace() { return false; }
+    bool on_left_brace() {
+        block_count_++;
+        counter_ = block_size_;
+        return (1 == block_count_) ? true : false;
+    }
+
+    bool on_right_brace() {
+        if (block_count_ > 0) {
+            block_count_--;
+        }
+        return (0 == block_count_) ? true : false;
+    }
 
     bool on_command(std::string command, std::vector<std::string>& vec) {
         vec.push_back(command);
-        counter_--;
+        if (!block_count_) {
+            counter_--;
+        }
 
         return counter_ ? false : true;
     }

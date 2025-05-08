@@ -1,11 +1,8 @@
 #include "block_reader.hpp"
 #include "block_writer.hpp"
 
-#include <cassert>
 #include <iostream>
 #include <sstream>
-#include <string>
-#include <vector>
 
 int main(int argc, char* argv[]) {
     std::istringstream s{argv[1]};
