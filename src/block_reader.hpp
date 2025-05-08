@@ -4,6 +4,7 @@
 #include <iostream>
 #include <istream>
 #include <sstream>
+#include <vector>
 
 class BlockReader {
    public:
@@ -18,28 +19,26 @@ class BlockReader {
             std::getline(input_stream_, input_line);
 
             if ("EOF" == input_line) {
-                line = outstring_.str();
+                line = serialize();
                 return false;
             }
 
             if ("{" == input_line) {
                 begin_block();
-                line = outstring_.str();
+                line = serialize();
                 return true;
             }
 
             if ("}" == input_line) {
                 end_block();
+                line = serialize();
+                return true;
             }
 
-            if (count) {
-                outstring_ << ", ";
-            }
-
-            outstring_ << input_line;
+            add_line(input_line);
         }
 
-        line = outstring_.str();
+        line = serialize();
         return true;
     }
 
@@ -50,6 +49,25 @@ class BlockReader {
     std::istream& input_stream_;
     std::ostringstream outstring_{};
     bool dynamic_block_ = false;
+
+    std::vector<std::string> buffer_;
+
+    void add_line(std::string s) { buffer_.push_back(s); }
+
+    std::string serialize() {
+        std::ostringstream o;
+        if (buffer_.size()) {
+            o << "bulk: ";
+        }
+        for (auto i = 0; i < buffer_.size(); i++) {
+            if (i) {
+                o << ", ";
+            }
+            o << buffer_[i];
+        }
+        buffer_.clear();
+        return o.str();
+    }
 
     void begin_block() { dynamic_block_ = true; }
 
