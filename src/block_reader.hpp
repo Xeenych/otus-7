@@ -10,26 +10,36 @@ class BlockReader {
     explicit BlockReader(size_t s, std::istream& is) : block_size_{s}, input_stream_{is} {}
 
     bool GetLine(std::string& line) {
-        std::ostringstream outstring{};
-        outstring << "bulk: ";
+        outstring_.str("");
+        outstring_ << "bulk: ";
 
         for (auto count = 0; count < block_size_; count++) {
             std::string input_line;
             std::getline(input_stream_, input_line);
 
             if ("EOF" == input_line) {
-                line = outstring.str();
+                line = outstring_.str();
                 return false;
             }
 
-            if (count) {
-                outstring << ", ";
+            if ("{" == input_line) {
+                begin_block();
+                line = outstring_.str();
+                return true;
             }
 
-            outstring << input_line;
+            if ("}" == input_line) {
+                end_block();
+            }
+
+            if (count) {
+                outstring_ << ", ";
+            }
+
+            outstring_ << input_line;
         }
 
-        line = outstring.str();
+        line = outstring_.str();
         return true;
     }
 
@@ -38,4 +48,10 @@ class BlockReader {
    private:
     size_t block_size_;
     std::istream& input_stream_;
+    std::ostringstream outstring_{};
+    bool dynamic_block_ = false;
+
+    void begin_block() { dynamic_block_ = true; }
+
+    void end_block() { dynamic_block_ = false; }
 };
