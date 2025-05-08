@@ -13,7 +13,7 @@ class BlockReader {
         std::ostringstream outstring{};
         outstring << "bulk: ";
 
-        for (auto count = block_size_; count--;) {
+        for (auto count = 0; count < block_size_; count++) {
             std::string input_line;
             std::getline(input_stream_, input_line);
 
@@ -22,10 +22,11 @@ class BlockReader {
                 return false;
             }
 
-            outstring << input_line;
-            if (0 != count) {
+            if (count) {
                 outstring << ", ";
             }
+
+            outstring << input_line;
         }
 
         line = outstring.str();

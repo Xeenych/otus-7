@@ -13,9 +13,12 @@ int main(int argc, char* argv[]) {
 
     BlockReader br{block_size, std::cin};
 
-    for (std::string line; br.GetLine(line);) {
+    std::string line;
+    while (br.GetLine(line)) {
         std::cout << line << std::endl;
     }
+    // вывод послденей строки перед EOF
+    std::cout << line << std::endl;
 
     return 0;
 }
