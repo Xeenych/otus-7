@@ -18,6 +18,7 @@ class BlockWriter {
             }
             o_ << vec[i];
         }
+        o_ << std::endl;
     }
 
    private:

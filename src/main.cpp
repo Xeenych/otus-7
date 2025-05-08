@@ -18,8 +18,11 @@ int main(int argc, char* argv[]) {
 
     std::vector<std::string> commands;
 
-    br >> commands;
-    bw << commands;
+    while (!br.eof()) {
+        br >> commands;
+        bw << commands;
+        commands.clear();
+    }
 
     return 0;
 }
