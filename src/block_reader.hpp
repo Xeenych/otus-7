@@ -12,16 +12,16 @@ class BlockReader {
         bool ret = false;
         counter_ = block_size_;
 
-        while (!ret || !vec.size()) {
+        while (!ret) {
             std::string command;
             std::getline(input_stream_, command);
 
             if ("EOF" == command) {
                 ret = on_eof();
             } else if ("{" == command) {
-                ret = on_left_brace();
+                ret = on_left_brace() && vec.size();
             } else if ("}" == command) {
-                ret = on_right_brace();
+                ret = on_right_brace() && vec.size();
             } else {
                 ret = on_command(command, vec);
             }
